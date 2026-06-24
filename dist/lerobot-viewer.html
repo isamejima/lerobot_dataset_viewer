@@ -310,6 +310,7 @@
   .video-card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
   .video-card .cam-label { font-family: var(--mono); font-size: 11px; color: var(--ink-dim); padding: 7px 10px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; }
   .video-card video { width: 100%; display: block; background: #000; }
+  .video-card .vid-info { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); padding: 5px 10px; border-top: 1px solid var(--line); }
   .video-transport { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
   .frame-readout { font-family: var(--mono); font-size: 12px; color: var(--cyan); }
   .sync-note { font-size: 11px; color: var(--ink-faint); margin-bottom: 10px; }
@@ -1236,14 +1237,23 @@ function renderVideo() {
     <div class="video-card">
       <div class="cam-label"><span>${shortName(c.key)}</span><span style="color:var(--ink-faint)">${c.file.name}</span></div>
       <video id="vid${i}" preload="metadata" playsinline muted></video>
+      <div id="vidInfo${i}" class="vid-info">読み込み中…</div>
     </div>`).join('');
 
   DS.cameras.forEach((c, i) => {
     const v = $('vid' + i);
     v.src = URL.createObjectURL(c.file);
     videos.push(v);
+    v.addEventListener('loadedmetadata', () => {
+      if (i === 0) updateScrubMax();
+      const infoEl = document.getElementById(`vidInfo${i}`);
+      if (infoEl) {
+        const w = v.videoWidth, h = v.videoHeight;
+        const fps = DS.fps;
+        infoEl.textContent = `${w}×${h}  ${fps} fps`;
+      }
+    });
     if (i === 0) {
-      v.addEventListener('loadedmetadata', () => { updateScrubMax(); });
       v.addEventListener('timeupdate', () => { if (!playing) syncFromVideo(); });
     }
   });

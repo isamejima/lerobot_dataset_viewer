@@ -618,14 +618,23 @@ function renderVideo() {
     <div class="video-card">
       <div class="cam-label"><span>${shortName(c.key)}</span><span style="color:var(--ink-faint)">${c.file.name}</span></div>
       <video id="vid${i}" preload="metadata" playsinline muted></video>
+      <div id="vidInfo${i}" class="vid-info">読み込み中…</div>
     </div>`).join('');
 
   DS.cameras.forEach((c, i) => {
     const v = $('vid' + i);
     v.src = URL.createObjectURL(c.file);
     videos.push(v);
+    v.addEventListener('loadedmetadata', () => {
+      if (i === 0) updateScrubMax();
+      const infoEl = document.getElementById(`vidInfo${i}`);
+      if (infoEl) {
+        const w = v.videoWidth, h = v.videoHeight;
+        const fps = DS.fps;
+        infoEl.textContent = `${w}×${h}  ${fps} fps`;
+      }
+    });
     if (i === 0) {
-      v.addEventListener('loadedmetadata', () => { updateScrubMax(); });
       v.addEventListener('timeupdate', () => { if (!playing) syncFromVideo(); });
     }
   });
