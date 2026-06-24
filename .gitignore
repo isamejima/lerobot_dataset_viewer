@@ -1,0 +1,17 @@
+# dependencies (we don't use them, but guard anyway)
+node_modules/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# local-only offline libs (users add these themselves; see README)
+lib/*.js
+!lib/.gitkeep
+
+# scratch
+*.log
+/tmp/

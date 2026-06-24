@@ -1,0 +1,19 @@
+{
+  "name": "lerobot-dataset-viewer",
+  "version": "0.1.0",
+  "description": "Browser-only viewer for LeRobot datasets (Parquet + MP4). No server, no npm install required at runtime.",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "test": "node test/core.test.mjs",
+    "check": "node test/core.test.mjs && node scripts/build.js"
+  },
+  "files": [
+    "dist/",
+    "src/",
+    "scripts/",
+    "README.md"
+  ],
+  "license": "MIT",
+  "private": false
+}

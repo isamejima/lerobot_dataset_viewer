@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LeRobot Dataset Viewer</title>
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<header>
+  <div class="brand">
+    <span class="mark">LEROBOT</span>
+    <span class="ver">dataset viewer</span>
+  </div>
+  <div class="header-spacer"></div>
+  <div id="datasetTag" class="dataset-tag hidden"></div>
+  <label class="file-btn primary" id="pickFolderBtn">
+    フォルダを開く
+    <input type="file" id="folderInput" webkitdirectory directory multiple>
+  </label>
+</header>
+
+<main>
+  <aside class="sidebar">
+    <div class="sidebar-section" id="datasetInfo">
+      <h3>データセット</h3>
+      <div id="infoRows" style="color:var(--ink-faint);font-size:12px;">未読み込み</div>
+    </div>
+    <div class="episode-list" id="episodeList">
+      <h3>エピソード</h3>
+      <div id="episodeItems" style="padding:8px;color:var(--ink-faint);font-size:12px;">—</div>
+    </div>
+  </aside>
+
+  <section class="content">
+    <div class="tabs" id="tabs">
+      <div class="tab active" data-tab="table">テーブル</div>
+      <div class="tab" data-tab="plot">グラフ</div>
+      <div class="tab" data-tab="video">動画</div>
+      <div class="tab" data-tab="schema">スキーマ</div>
+    </div>
+
+    <!-- Empty state -->
+    <div class="empty-state" id="emptyState">
+      <div class="drop-card" id="dropCard">
+        <h2>LeRobot データセットを表示</h2>
+        <p>データセットの<span class="mono-key">ルートフォルダ</span>をドラッグ＆ドロップ、または「フォルダを開く」から選択してください。すべてブラウザ内で処理され、データは外部に送信されません。</p>
+        <label class="file-btn primary" style="display:inline-block">
+          フォルダを選択
+          <input type="file" webkitdirectory directory multiple id="folderInput2">
+        </label>
+        <div class="hint">
+          v2 / v3 形式に対応。期待される構成:<br>
+          <code>data/</code> <code>meta/</code> <code>videos/</code><br>
+          Parquet の数値・状態・アクション列、対応する MP4 を読み込みます。
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="panel-body hidden" id="tab-table">
+      <div class="table-controls">
+        <span class="pageinfo" id="rowRange">—</span>
+        <div class="spacer"></div>
+        <button id="pagePrev">‹ 前</button>
+        <select id="pageSize">
+          <option value="50">50 行</option>
+          <option value="100" selected>100 行</option>
+          <option value="250">250 行</option>
+          <option value="500">500 行</option>
+        </select>
+        <button id="pageNext">次 ›</button>
+      </div>
+      <div class="data-table-wrap">
+        <table class="data" id="dataTable"><thead></thead><tbody></tbody></table>
+      </div>
+    </div>
+
+    <!-- Plot -->
+    <div class="panel-body hidden" id="tab-plot">
+      <div class="plot-controls">
+        <div class="col-picker">
+          <h4>系列を選択（数値・配列列）</h4>
+          <div class="chip-row" id="plotChips"></div>
+        </div>
+      </div>
+      <div class="plot-wrap">
+        <svg class="plot" id="plotSvg" viewBox="0 0 900 360" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="legend" id="plotLegend"></div>
+      </div>
+      <p class="sync-note" style="margin-top:10px">クリックで再生位置（フレーム）を移動できます。動画タブと同期します。</p>
+    </div>
+
+    <!-- Video -->
+    <div class="panel-body hidden" id="tab-video">
+      <div id="videoEmpty" class="err-box hidden">このエピソードに対応する MP4 が見つかりませんでした。</div>
+      <div class="video-transport" id="videoTransport">
+        <button id="vPlay">▶ 再生</button>
+        <input type="range" class="scrubber" id="vScrub" min="0" max="100" value="0" step="1">
+        <span class="frame-readout" id="vReadout">frame 0 / 0</span>
+      </div>
+      <p class="sync-note">複数カメラは同時再生されます。スクラブするとグラフのカーソルも連動します。</p>
+      <div class="video-grid" id="videoGrid"></div>
+    </div>
+
+    <!-- Schema -->
+    <div class="panel-body hidden" id="tab-schema">
+      <table class="schema" id="schemaTable">
+        <thead><tr><th>列名</th><th>型</th><th>shape / 次元</th><th>サンプル</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<div class="status-bar">
+  <span class="dot" id="statusDot"></span>
+  <span id="statusText">フォルダ未選択</span>
+  <span style="flex:1"></span>
+  <span id="statusLib" style="color:var(--ink-faint)"></span>
+</div>
+
+<div class="loading-overlay hidden" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="msg" id="loadingMsg">読み込み中…</div>
+</div>
+
+<div class="tooltip hidden" id="tooltip"></div>
+<script type="module" src="./app.js"></script>
+</body>
+</html>

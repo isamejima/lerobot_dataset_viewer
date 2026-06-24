@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # No dependencies to install — everything runs on plain Node.
+
+      - name: Run unit tests
+        run: node test/core.test.mjs
+
+      - name: Build single-file bundle
+        run: node scripts/build.js
+
+      - name: Verify bundled script has no syntax errors
+        run: |
+          node --input-type=module -e "
+            import fs from 'node:fs';
+            const html = fs.readFileSync('dist/lerobot-viewer.html', 'utf8');
+            const open = '<script type=\"module\">';
+            const s = html.indexOf(open) + open.length;
+            const e = html.lastIndexOf('</scr' + 'ipt>');
+            fs.writeFileSync('/tmp/bundle.mjs', html.slice(s, e));
+          "
+          node --check /tmp/bundle.mjs
+          echo "Bundle syntax OK"
+
+      - name: Verify no leftover source references in bundle
+        run: |
+          if grep -q 'href="./styles.css"' dist/lerobot-viewer.html || grep -q 'src="./app.js"' dist/lerobot-viewer.html; then
+            echo "Build failed to inline sources"; exit 1
+          fi
+          echo "Inlining OK"
